@@ -76,13 +76,14 @@ model Church {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  branches          BranchChurch[]
-  users             User[]
-  churchPermissions ChurchPermission[]
-  worships          ChurchWorship[]
+  branches           BranchChurch[]
+  users              User[]
+  churchPermissions  ChurchPermission[]
+  worships           ChurchWorship[]
   visitors           Visitor[]
   visitorAttendances VisitorAttendance[]
   members            Member[]
+  smallGroups        SmallGroup[]
 
   @@map("churches")
 }
@@ -115,9 +116,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  church     Church           @relation(fields: [churchId], references: [id])
-  branch     BranchChurch?    @relation(fields: [branchId], references: [id])
-  followUps  MemberFollowUp[]
+  church           Church           @relation(fields: [churchId], references: [id])
+  branch           BranchChurch?    @relation(fields: [branchId], references: [id])
+  followUps        MemberFollowUp[]
+  leadingSmallGroups SmallGroup[]
 
   @@map("users")
 }
@@ -202,14 +204,34 @@ model Member {
   status         MemberStatus  @default(ACTIVE)
   ministry       String?
   notes          String?
+  smallGroupId   String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
 
   church     Church            @relation(fields: [churchId], references: [id])
+  smallGroup SmallGroup?       @relation(fields: [smallGroupId], references: [id])
   followUps  MemberFollowUp[]
 
   @@map("members")
+}
+
+model SmallGroup {
+  id           String           @id @default(cuid())
+  churchId     String
+  name         String
+  leaderUserId String
+  frequency    WorshipFrequency
+  dayOfWeek    DayOfWeek
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  church   Church   @relation(fields: [churchId], references: [id])
+  leader   User     @relation(fields: [leaderUserId], references: [id])
+  members  Member[]
+
+  @@map("small_groups")
 }
 
 model MemberFollowUp {

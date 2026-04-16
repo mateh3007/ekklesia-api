@@ -12,6 +12,7 @@ import { ChurchPermissionsModule } from './modules/church-permissions/church-per
 import { ChurchWorshipModule } from './modules/church-worship/church-worship.module.js';
 import { FirstTimeModule } from './modules/first-time/first-time.module.js';
 import { MembersModule } from './modules/members/members.module.js';
+import { SmallGroupsModule } from './modules/small-groups/small-groups.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MembersModule } from './modules/members/members.module.js';
     ChurchWorshipModule,
     FirstTimeModule,
     MembersModule,
+    SmallGroupsModule,
   ],
 })
 export class AppModule {}

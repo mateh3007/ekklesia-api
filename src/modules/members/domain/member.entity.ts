@@ -32,6 +32,7 @@ export class Member {
   status: MemberStatus;
   ministry?: string;
   notes?: string;
+  smallGroupId?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
