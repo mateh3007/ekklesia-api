@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
+}
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum WorshipFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum VisitorStatus {
+  NEW
+  RETURNING
+  MEMBER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  AWAY
+  UNDER_CARE
+}
+
+enum FollowUpType {
+  VISIT
+  COUNSELING
+  PRAYER
+  OTHER
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Church {
+  id        String   @id @default(cuid())
+  name      String
+  document  String   @unique
+  email     String   @unique
+  phone     String?
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branches          BranchChurch[]
+  users             User[]
+  churchPermissions ChurchPermission[]
+  worships          ChurchWorship[]
+  visitors           Visitor[]
+  visitorAttendances VisitorAttendance[]
+  members            Member[]
+
+  @@map("churches")
+}
+
+model BranchChurch {
+  id        String   @id @default(cuid())
+  churchId  String
+  name      String
+  address   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  church Church @relation(fields: [churchId], references: [id])
+  users  User[]
+
+  @@map("branch_churches")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  churchId  String
+  branchId  String?
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(MEMBER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  church     Church           @relation(fields: [churchId], references: [id])
+  branch     BranchChurch?    @relation(fields: [branchId], references: [id])
+  followUps  MemberFollowUp[]
+
+  @@map("users")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  module      String
+  action      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  churchPermissions ChurchPermission[]
+
+  @@map("permissions")
+}
+
+model ChurchWorship {
+  id        String           @id @default(cuid())
+  churchId  String
+  name      String
+  dayOfWeek DayOfWeek
+  frequency WorshipFrequency
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  church      Church              @relation(fields: [churchId], references: [id])
+  attendances VisitorAttendance[]
+
+  @@map("church_worships")
+}
+
+model Visitor {
+  id             String        @id @default(cuid())
+  churchId       String
+  name           String
+  email          String?
+  phone          String?
+  birthDate      DateTime?
+  firstVisitDate DateTime
+  status         VisitorStatus @default(NEW)
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  church      Church              @relation(fields: [churchId], references: [id])
+  attendances VisitorAttendance[]
+
+  @@map("visitors")
+}
+
+model VisitorAttendance {
+  id         String   @id @default(cuid())
+  visitorId  String
+  worshipId  String
+  churchId   String
+  attendedAt DateTime
+  createdAt  DateTime @default(now())
+
+  visitor Visitor       @relation(fields: [visitorId], references: [id])
+  worship ChurchWorship @relation(fields: [worshipId], references: [id])
+  church  Church        @relation(fields: [churchId], references: [id])
+
+  @@unique([visitorId, attendedAt])
+  @@map("visitor_attendances")
+}
+
+model Member {
+  id             String        @id @default(cuid())
+  churchId       String
+  fullName       String
+  email          String?
+  phone          String
+  birthDate      DateTime
+  gender         Gender
+  maritalStatus  MaritalStatus
+  address        String?
+  membershipDate DateTime
+  baptismDate    DateTime?
+  status         MemberStatus  @default(ACTIVE)
+  ministry       String?
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  church     Church            @relation(fields: [churchId], references: [id])
+  followUps  MemberFollowUp[]
+
+  @@map("members")
+}
+
+model MemberFollowUp {
+  id          String      @id @default(cuid())
+  churchId    String
+  memberId    String
+  type        FollowUpType
+  description String
+  createdBy   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+
+  member      Member @relation(fields: [memberId], references: [id])
+  createdByUser User @relation(fields: [createdBy], references: [id])
+
+  @@map("member_follow_ups")
+}
+
+model ChurchPermission {
+  id           String   @id @default(cuid())
+  churchId     String
+  permissionId String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  church     Church     @relation(fields: [churchId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([churchId, permissionId])
+  @@map("church_permissions")
+}
