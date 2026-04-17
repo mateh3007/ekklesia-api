@@ -2,10 +2,14 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { ChurchRepository } from '../../domain/church.repository.js';
 import { Church } from '../../domain/church.entity.js';
 import { CreateChurchDto } from './create-church.dto.js';
+import { ChurchPermissionRepository } from '../../../church-permissions/domain/church-permission.repository.js';
 
 @Injectable()
 export class CreateChurchUseCase {
-  constructor(private readonly churchRepository: ChurchRepository) {}
+  constructor(
+    private readonly churchRepository: ChurchRepository,
+    private readonly churchPermissionRepository: ChurchPermissionRepository,
+  ) {}
 
   async execute(dto: CreateChurchDto): Promise<Church> {
     const [existingDocument, existingEmail] = await Promise.all([
@@ -30,6 +34,8 @@ export class CreateChurchUseCase {
       isActive: true,
     });
 
-    return this.churchRepository.create(church);
+    const created = await this.churchRepository.create(church);
+    await this.churchPermissionRepository.grantByPermissionName(created.id, 'church');
+    return created;
   }
 }

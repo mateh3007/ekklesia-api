@@ -13,6 +13,7 @@ import { ChurchWorshipModule } from './modules/church-worship/church-worship.mod
 import { FirstTimeModule } from './modules/first-time/first-time.module.js';
 import { MembersModule } from './modules/members/members.module.js';
 import { SmallGroupsModule } from './modules/small-groups/small-groups.module.js';
+import { DashboardModule } from './modules/dashboard/dashboard.module.js';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SmallGroupsModule } from './modules/small-groups/small-groups.module.js
     FirstTimeModule,
     MembersModule,
     SmallGroupsModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

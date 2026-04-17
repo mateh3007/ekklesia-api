@@ -8,4 +8,6 @@ export abstract class ChurchPermissionRepository {
     churchId: string,
     permissionName: string,
   ): Promise<boolean>;
+  abstract findActivePermissionNames(churchId: string): Promise<string[]>;
+  abstract grantByPermissionName(churchId: string, permissionName: string): Promise<void>;
 }

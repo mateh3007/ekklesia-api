@@ -37,6 +37,25 @@ export class PrismaChurchPermissionRepository
     return records.map(this.toEntity);
   }
 
+  async grantByPermissionName(churchId: string, permissionName: string): Promise<void> {
+    const permission = await this.prisma.permission.findFirstOrThrow({
+      where: { name: permissionName },
+    });
+    await this.prisma.churchPermission.upsert({
+      where: { churchId_permissionId: { churchId, permissionId: permission.id } },
+      update: { isActive: true },
+      create: { churchId, permissionId: permission.id, isActive: true },
+    });
+  }
+
+  async findActivePermissionNames(churchId: string): Promise<string[]> {
+    const records = await this.prisma.churchPermission.findMany({
+      where: { churchId, isActive: true },
+      include: { permission: true },
+    });
+    return records.map((r) => r.permission.name);
+  }
+
   async hasPermission(
     churchId: string,
     permissionId: string,

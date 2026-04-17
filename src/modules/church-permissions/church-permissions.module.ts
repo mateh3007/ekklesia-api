@@ -4,10 +4,12 @@ import { ChurchPermissionRepository } from './domain/church-permission.repositor
 import { GrantPermissionUseCase } from './application/grant-permission/grant-permission.usecase.js';
 import { RevokePermissionUseCase } from './application/revoke-permission/revoke-permission.usecase.js';
 import { ListChurchPermissionsUseCase } from './application/list-church-permissions/list-church-permissions.usecase.js';
+import { GetActivePermissionsUseCase } from './application/get-active-permissions/get-active-permissions.usecase.js';
 import { PrismaChurchPermissionRepository } from './infrastructure/prisma-church-permission.repository.js';
 import { GrantPermissionController } from './presentation/grant-permission.controller.js';
 import { RevokePermissionController } from './presentation/revoke-permission.controller.js';
 import { ListChurchPermissionsController } from './presentation/list-church-permissions.controller.js';
+import { GetActivePermissionsController } from './presentation/get-active-permissions.controller.js';
 import { JwtAuthGuard } from '../../shared/presentation/guards/jwt-auth.guard.js';
 import { PermissionsGuard } from '../../shared/presentation/guards/permissions.guard.js';
 
@@ -16,11 +18,13 @@ import { PermissionsGuard } from '../../shared/presentation/guards/permissions.g
     GrantPermissionController,
     RevokePermissionController,
     ListChurchPermissionsController,
+    GetActivePermissionsController,
   ],
   providers: [
     GrantPermissionUseCase,
     RevokePermissionUseCase,
     ListChurchPermissionsUseCase,
+    GetActivePermissionsUseCase,
     {
       provide: ChurchPermissionRepository,
       useClass: PrismaChurchPermissionRepository,
@@ -28,5 +32,6 @@ import { PermissionsGuard } from '../../shared/presentation/guards/permissions.g
     JwtAuthGuard,
     PermissionsGuard,
   ],
+  exports: [ChurchPermissionRepository],
 })
 export class ChurchPermissionsModule {}

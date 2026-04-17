@@ -12,10 +12,12 @@ import { FindChurchByIdController } from './presentation/find-church-by-id.contr
 import { ListChurchesController } from './presentation/list-churches.controller.js';
 import { UpdateChurchController } from './presentation/update-church.controller.js';
 import { DeleteChurchController } from './presentation/delete-church.controller.js';
+import { ChurchPermissionsModule } from '../church-permissions/church-permissions.module.js';
 import { JwtAuthGuard } from '../../shared/presentation/guards/jwt-auth.guard.js';
 import { PermissionsGuard } from '../../shared/presentation/guards/permissions.guard.js';
 
 @Module({
+  imports: [ChurchPermissionsModule],
   controllers: [
     CreateChurchController,
     FindChurchByIdController,
